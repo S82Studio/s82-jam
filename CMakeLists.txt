@@ -82,17 +82,18 @@ juce_add_modules(deps/ff_meters)
 
 
 
-set (FormatsToBuild VST3 Standalone)
+# S82 Jam: only the standalone app (band practice does not need plugins)
+set (FormatsToBuild Standalone)
 
 # On Mac, a AU version will be built too
-if (APPLE)
-    list (APPEND FormatsToBuild AU)
-endif()
+#if (APPLE)
+#    list (APPEND FormatsToBuild AU)
+#endif()
 
 # On Linux, LV2 will be built too
-if (UNIX)
-    list (APPEND FormatsToBuild LV2)
-endif()
+#if (UNIX)
+#    list (APPEND FormatsToBuild LV2)
+#endif()
 
 # If you are building a VST2 or AAX plugin, CMake needs to be told where to find these SDKs on your
 # system. This setup should be done before calling `juce_add_plugin`.
@@ -155,8 +156,8 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         NEEDS_MIDI_INPUT TRUE
         NEEDS_MIDI_OUTPUT TRUE
         EDITOR_WANTS_KEYBOARD_FOCUS TRUE
-        COMPANY_NAME "Sonosaurus"
-        BUNDLE_ID "com.Sonosaurus.SonoBus"
+        COMPANY_NAME "S82 Studio"
+        BUNDLE_ID "com.s82studio.s82jam"
         MICROPHONE_PERMISSION_ENABLED TRUE
         
         ICON_BIG "images/sonobus_icon_mac_1024.png"
@@ -179,7 +180,7 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         PLUGIN_MANUFACTURER_CODE Sono
         PLUGIN_CODE ${plugincode}
         FORMATS ${formats}
-        DESCRIPTION "SonoBus - Network Audio"
+        DESCRIPTION "S82 Jam - tap band qua mang (dua tren SonoBus)"
         PRODUCT_NAME "${product_name}")
 
     juce_generate_juce_header("${target_name}")
@@ -472,6 +473,7 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         localization/localized_ko.txt
         localization/localized_ru.txt
         localization/localized_zh-hans.txt
+        localization/localized_vi.txt
         images/arrow-up-narrow.svg
         images/arrow-down-narrow.svg
         images/dots.svg
@@ -621,11 +623,11 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
 endfunction()
 
 # most of the targets
-sono_add_custom_plugin_target(SonoBus SonoBus "${FormatsToBuild}" FALSE  "NBus")
+sono_add_custom_plugin_target(SonoBus "S82 Jam" "${FormatsToBuild}" FALSE  "NBus")
 
 # Mobile targets
 #sono_add_custom_plugin_target(SonoBusMobile "AUv3 Standalone" FALSE "NBus")
 
 # add VSTi target
-sono_add_custom_plugin_target(SonoBusInst "SonoBusInstrument" "VST3" TRUE  "IBus")
+#sono_add_custom_plugin_target(SonoBusInst "SonoBusInstrument" "VST3" TRUE  "IBus")
 

@@ -1,0 +1,86 @@
+name: Build S82 Jam
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: ASIO SDK (GPLv3 option, Steinberg 2025)
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://www.steinberg.net/asiosdk" -OutFile asiosdk.zip
+          Expand-Archive asiosdk.zip -DestinationPath asiotmp
+          $common = Get-ChildItem asiotmp -Recurse -Directory -Filter common | Select-Object -First 1
+          New-Item -ItemType Directory -Force ..\asiosdk | Out-Null
+          Copy-Item -Recurse $common.FullName ..\asiosdk\common
+          Get-ChildItem ..\asiosdk\common | Select-Object -First 5
+
+      - name: Configure
+        run: cmake -G "Visual Studio 17 2022" -A x64 -B build
+
+      - name: Build
+        run: cmake --build build --config Release --target SonoBus_Standalone -j 4
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem build -Recurse -Filter "S82 Jam.exe" | Select-Object -First 1
+          New-Item -ItemType Directory -Force dist | Out-Null
+          Copy-Item $exe.FullName "dist\S82 Jam.exe"
+          Copy-Item LICENSE dist\LICENSE.txt
+          Compress-Archive -Path dist\* -DestinationPath S82-Jam-Windows.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: S82-Jam-Windows
+          path: S82-Jam-Windows.zip
+
+  mac:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Configure
+        run: cmake -G Xcode -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --target SonoBus_Standalone -- -quiet
+
+      - name: Package
+        run: |
+          APP=$(find build -name "S82 Jam.app" -type d | head -1)
+          codesign --force --deep -s - "$APP"
+          mkdir -p dmg && cp -R "$APP" dmg/ && cp LICENSE dmg/LICENSE.txt
+          ln -s /Applications dmg/Applications
+          hdiutil create -volname "S82 Jam" -srcfolder dmg -ov -format UDZO S82-Jam-Mac.dmg
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: S82-Jam-Mac
+          path: S82-Jam-Mac.dmg
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, mac]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            S82-Jam-Windows/S82-Jam-Windows.zip
+            S82-Jam-Mac/S82-Jam-Mac.dmg

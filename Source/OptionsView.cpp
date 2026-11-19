@@ -41,6 +41,8 @@ void OptionsView::initializeLanguages()
     // TODO smarter way of figuring out what languages are available
     languages.add(TRANS("System Default Language")); languagesNative.add(""); codes.add("");
 
+    // S82 Jam: Vietnamese first (also the default when no language is chosen)
+    languages.add(TRANS("Vietnamese")); languagesNative.add(juce::CharPointer_UTF8 ("Tiáº¿ng Viá»t")); codes.add("vi");
     languages.add(TRANS("English")); languagesNative.add("English"); codes.add("en");
     languages.add(TRANS("Spanish")); languagesNative.add(CharPointer_UTF8 ("espa\xc3\xb1ol")); codes.add("es");
     languages.add(TRANS("French"));  languagesNative.add(CharPointer_UTF8 ("fran\xc3\xa7""ais")); codes.add("fr");

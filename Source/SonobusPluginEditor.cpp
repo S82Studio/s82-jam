@@ -5314,6 +5314,9 @@ bool SonobusAudioProcessorEditor::setupLocalisation(const String & overrideLang)
         displang = lang = "en-us";
     }
 
+    // S82 Jam: default to Vietnamese, most users run Windows/macOS in English
+    displang = lang = "vi";
+
     if (overrideLang.isNotEmpty()) {
         displang = lang = overrideLang;
     }
