@@ -58,10 +58,18 @@ jobs:
           submodules: recursive
 
       - name: Configure
-        run: cmake -G Xcode -B build -DCMAKE_BUILD_TYPE=Release
+        run: |
+          set -o pipefail
+          cmake -G Xcode -B build -DCMAKE_BUILD_TYPE=Release 2>&1 | tee cfg.log || {
+            msg=$(grep -iE -B2 -A8 "error" cfg.log | tail -60 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=mac configure::$msg"; exit 1; }
 
       - name: Build
-        run: cmake --build build --config Release --target SonoBus_Standalone -- -quiet
+        run: |
+          set -o pipefail
+          cmake --build build --config Release --target SonoBus_Standalone -- -quiet 2>&1 | tee build.log || {
+            msg=$(grep -E "error:|\*\* BUILD FAILED" build.log | head -30 | sed 's/%/%25/g' | awk '{printf "%s%%0A", $0}')
+            echo "::error title=mac build::$msg"; exit 1; }
 
       - name: Package
         run: |
