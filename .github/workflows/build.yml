@@ -95,6 +95,11 @@ jobs:
       - uses: actions/download-artifact@v5
       - uses: softprops/action-gh-release@v2
         with:
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          name: S82 Jam ${{ github.ref_name }}
+          body: |
+            Windows: tải S82-Jam-Windows.zip, giải nén, chạy "S82 Jam.exe" (cảnh báo SmartScreen: More info → Run anyway).
+            Mac: tải S82-Jam-Mac.dmg, kéo S82 Jam vào Applications. Lần đầu mở: System Settings → Privacy & Security → Open Anyway.
           files: |
             S82-Jam-Windows/S82-Jam-Windows.zip
             S82-Jam-Mac/S82-Jam-Mac.dmg
