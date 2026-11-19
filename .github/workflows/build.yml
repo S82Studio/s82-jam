@@ -13,7 +13,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -28,7 +28,7 @@ jobs:
           Get-ChildItem ..\asiosdk\common | Select-Object -First 5
 
       - name: Configure
-        run: cmake -G "Visual Studio 17 2022" -A x64 -B build
+        run: cmake -A x64 -B build
 
       - name: Build
         run: cmake --build build --config Release --target SonoBus_Standalone -j 4
@@ -42,15 +42,15 @@ jobs:
           Copy-Item LICENSE dist\LICENSE.txt
           Compress-Archive -Path dist\* -DestinationPath S82-Jam-Windows.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: S82-Jam-Windows
           path: S82-Jam-Windows.zip
 
   mac:
-    runs-on: macos-14
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -68,7 +68,7 @@ jobs:
           ln -s /Applications dmg/Applications
           hdiutil create -volname "S82 Jam" -srcfolder dmg -ov -format UDZO S82-Jam-Mac.dmg
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: S82-Jam-Mac
           path: S82-Jam-Mac.dmg
@@ -78,7 +78,7 @@ jobs:
     needs: [windows, mac]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
       - uses: softprops/action-gh-release@v2
         with:
           files: |
