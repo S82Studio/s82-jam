@@ -377,9 +377,10 @@ OptionsView::OptionsView(SonobusAudioProcessor& proc, std::function<AudioDeviceM
     mOptionsComponent->addAndMakeVisible(mOptionsDefaultLevelSliderLabel.get());
     mOptionsComponent->addAndMakeVisible(mOptionsChangeAllFormatButton.get());
     mOptionsComponent->addAndMakeVisible(mVersionLabel.get());
-    mOptionsComponent->addAndMakeVisible(mOptionsLanguageChoice.get());
-    mOptionsComponent->addAndMakeVisible(mOptionsUnivFontButton.get());
-    mOptionsComponent->addAndMakeVisible(mOptionsLanguageLabel.get());
+    // S82 Jam: Vietnamese only, the language row is hidden
+    mOptionsComponent->addChildComponent(mOptionsLanguageChoice.get());
+    mOptionsComponent->addChildComponent(mOptionsUnivFontButton.get());
+    mOptionsComponent->addChildComponent(mOptionsLanguageLabel.get());
     mOptionsComponent->addAndMakeVisible(mOptionsAutoDropThreshSlider.get());
     mOptionsComponent->addAndMakeVisible(mOptionsAutoDropThreshLabel.get());
 
@@ -818,7 +819,7 @@ void OptionsView::updateLayout()
     optionsBox.items.add(FlexItem(4, 6));
     optionsBox.items.add(FlexItem(100, 15, *mVersionLabel).withMargin(2).withFlex(0));
     optionsBox.items.add(FlexItem(4, 4));
-    optionsBox.items.add(FlexItem(100, minitemheight, optionsLanguageBox).withMargin(2).withFlex(0));
+    //optionsBox.items.add(FlexItem(100, minitemheight, optionsLanguageBox).withMargin(2).withFlex(0)); // S82 Jam: Vietnamese only
     optionsBox.items.add(FlexItem(4, 4));
     optionsBox.items.add(FlexItem(100, minitemheight, optionsSendQualBox).withMargin(2).withFlex(0));
     optionsBox.items.add(FlexItem(100, minitemheight - 10, optionsChangeAllQualBox).withMargin(1).withFlex(0));

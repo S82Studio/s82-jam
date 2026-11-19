@@ -3,7 +3,7 @@
 App tập band qua mạng, tiếng Việt, của S82 Studio. Dựa trên [SonoBus](https://github.com/sonosaurus/sonobus) (Sonosaurus LLC, giấy phép GPLv3).
 
 - Tiếng gửi thẳng giữa các máy (P2P), độ trễ thấp, hỗ trợ ASIO trên Windows.
-- Giao diện tiếng Việt mặc định (đổi ngôn ngữ trong Cài đặt → Tuỳ chọn).
+- Giao diện tiếng Việt.
 
 ## Tải về
 

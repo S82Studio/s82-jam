@@ -462,17 +462,6 @@ function(sono_add_custom_plugin_target target_name product_name formats is_instr
         Source/wordmaker.g
         Source/GoNotoKurrent-Regular.ttf
 	Source/DejaVuSans.ttf
-        localization/localized_de.txt
-        localization/localized_es.txt
-        localization/localized_fr.txt
-        localization/localized_it.txt
-        localization/localized_ja.txt
-        localization/localized_nl.txt
-        localization/localized_pt-br.txt
-        localization/localized_pt-pt.txt
-        localization/localized_ko.txt
-        localization/localized_ru.txt
-        localization/localized_zh-hans.txt
         localization/localized_vi.txt
         images/arrow-up-narrow.svg
         images/arrow-down-narrow.svg
