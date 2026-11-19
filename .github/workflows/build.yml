@@ -87,6 +87,18 @@ jobs:
           name: S82-Jam-Mac
           path: S82-Jam-Mac.dmg
 
+  server:
+    # proves server/setup-server.sh's build step works on a fresh Ubuntu
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build aooserver (same commands as server/setup-server.sh)
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q build-essential git pkg-config libcurl4-openssl-dev
+          git clone -q https://github.com/essej/aooserver.git src
+          git -C src checkout -q 81a4cf94cfc0b25a7efa8fdbb4d53a0ecf00f10b
+          make -C src/Builds/LinuxMakefile CONFIG=Release -j4 2>&1 | tail -5
+          ./src/Builds/LinuxMakefile/build/aooserver -h
+
   release:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [windows, mac]

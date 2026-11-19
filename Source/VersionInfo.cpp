@@ -67,7 +67,7 @@ bool VersionInfo::isNewerVersionThanCurrent()
 
 std::unique_ptr<VersionInfo> VersionInfo::fetch (const String& endpoint)
 {
-    URL latestVersionURL ("https://api.github.com/repos/sonosaurus/sonobus/releases/" + endpoint);
+    URL latestVersionURL ("https://api.github.com/repos/S82Studio/s82-jam/releases/" + endpoint);
     String extraHeaders;      
     String authuserpass = SystemStats::getEnvironmentVariable("GITUSERPASS", "");
     
@@ -88,7 +88,7 @@ std::unique_ptr<VersionInfo> VersionInfo::fetch (const String& endpoint)
     if (json == nullptr)
         return nullptr;
 
-    auto versionString = json->getProperty ("tag_name").toString();
+    auto versionString = json->getProperty ("tag_name").toString().trimCharactersAtStart ("vV");
 
     if (versionString.isEmpty())
         return nullptr;

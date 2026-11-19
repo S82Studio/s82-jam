@@ -63,10 +63,8 @@ void LatestVersionCheckerAndUpdater::run()
     {
         if (showAlertWindows)
             AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                              "Update Server Communication Error",
-                                              "Failed to communicate with the SonoBus update server.\n"
-                                              "Please try again in a few minutes.\n\n"
-                                              "If this problem persists you can download the latest version of SonoBus from sonobus.net");
+                                              TRANS("Update Server Communication Error"),
+                                              TRANS("Could not reach the S82 Jam update server. Please try again in a few minutes."));
 
         return;
     }
@@ -75,47 +73,25 @@ void LatestVersionCheckerAndUpdater::run()
     {
         if (showAlertWindows)
             AlertWindow::showMessageBoxAsync (AlertWindow::InfoIcon,
-                                              "No New Version Available",
-                                              "Your SonoBus version is up to date.");
+                                              TRANS("No New Version Available"),
+                                              TRANS("Your S82 Jam version is up to date."));
         return;
     }
 
-    auto osString = []
+    auto versionString = info->versionString;
+
+    MessageManager::callAsync ([versionString]
     {
-       #if JUCE_MAC
-        return "mac";
-       #elif JUCE_WINDOWS
-        return "win";
-       #elif JUCE_LINUX
-        return "linux";
-       #else
-        jassertfalse;
-        return "Unknown";
-       #endif
-    }();
-
-    String requiredFilename ("sonobus-" + info->versionString + "-" + osString + "."); // to end with any extension
-
-    for (auto& asset : info->assets)
-    {
-        if (asset.name.startsWith(requiredFilename))
-        {
-            auto versionString = info->versionString;
-            auto releaseNotes  = info->releaseNotes;
-
-            MessageManager::callAsync ([this, versionString, releaseNotes, asset]
-            {
-                askUserAboutNewVersion (versionString, releaseNotes, asset);
-            });
-
-            return;
-        }
-    }
-
-    if (showAlertWindows)
-        AlertWindow::showMessageBoxAsync (AlertWindow::WarningIcon,
-                                          "Failed to find any new downloads",
-                                          "Please try again in a few minutes.");
+        AlertWindow::showOkCancelBox (AlertWindow::InfoIcon,
+                                      TRANS("New S82 Jam Version"),
+                                      TRANS("S82 Jam version") + " " + versionString + " " + TRANS("is available. Open the download page?"),
+                                      TRANS("Open download page"), TRANS("Later"), nullptr,
+                                      ModalCallbackFunction::create ([] (int result)
+                                      {
+                                          if (result == 1)
+                                              URL ("https://github.com/S82Studio/s82-jam/releases/latest").launchInDefaultBrowser();
+                                      }));
+    });
 }
 
 //==============================================================================

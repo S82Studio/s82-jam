@@ -8446,6 +8446,8 @@ void AooServerConnectionInfo::setFromValueTree(const ValueTree & item)
     groupPassword = item.getProperty("groupPassword", groupPassword);
     serverHost = item.getProperty("serverHost", serverHost);
     serverPort = item.getProperty("serverPort", serverPort);
+    // S82 Jam: settings saved by v0.1.0 point at the SonoBus server; move them to ours
+    if (serverHost == "aoo.sonobus.net") serverHost = DEFAULT_SERVER_HOST;
     timestamp = item.getProperty("timestamp", timestamp);
     groupIsPublic = item.getProperty("groupIsPublic", groupIsPublic);
 }
