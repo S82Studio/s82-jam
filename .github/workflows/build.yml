@@ -6,6 +6,9 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+env:
+  CMAKE_POLICY_VERSION_MINIMUM: "3.5"
+
 permissions:
   contents: write
 
