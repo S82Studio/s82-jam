@@ -1923,6 +1923,25 @@ void SonobusAudioProcessorEditor::timerCallback(int timerid)
             resized();
         }
 
+        // S82 Jam: warn when the audio device looks like Bluetooth headphones
+        if (JUCEApplicationBase::isStandaloneApp() && getAudioDeviceManager && getAudioDeviceManager())
+        {
+            auto setup = getAudioDeviceManager()->getAudioDeviceSetup();
+            String devs = setup.inputDeviceName + "|" + setup.outputDeviceName;
+            if (devs != mLastCheckedAudioDevices) {
+                mLastCheckedAudioDevices = devs;
+                String lower = devs.toLowerCase();
+                const char * btwords[] = { "bluetooth", "airpods", "hands-free", "handsfree", "buds", "beats", "wh-1000", "wf-1000" };
+                for (auto * w : btwords) {
+                    if (lower.contains(w)) {
+                        AlertWindow::showMessageBoxAsync(AlertWindow::WarningIcon, TRANS("Bluetooth Headphones?"),
+                                                         TRANS("The selected audio device looks like Bluetooth headphones. Bluetooth adds about 150 to 250 ms of latency, too much for playing together. Please use wired headphones or your sound card."));
+                        break;
+                    }
+                }
+            }
+        }
+
 #if 0
         if (JUCEApplicationBase::isStandaloneApp() && getAudioDeviceManager())
         {

@@ -119,6 +119,8 @@ protected:
 
     std::unique_ptr<SonoChoiceButton> mOptionsAutosizeDefaultChoice;
     std::unique_ptr<SonoChoiceButton> mOptionsFormatChoiceDefaultChoice;
+    std::unique_ptr<TextButton> mWifiModeButton; // S82 Jam
+    FlexBox optionsWifiBox;
     std::unique_ptr<Label>  mOptionsAutosizeStaticLabel;
     std::unique_ptr<Label>  mOptionsFormatChoiceStaticLabel;
 

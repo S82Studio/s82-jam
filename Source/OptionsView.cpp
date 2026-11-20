@@ -141,6 +141,10 @@ OptionsView::OptionsView(SonobusAudioProcessor& proc, std::function<AudioDeviceM
     }
     mOptionsFormatChoiceDefaultChoice->addItem("(*) " + TRANS("not recommended"), -2, true, true);
 
+    mWifiModeButton = std::make_unique<TextButton>(TRANS("Wi-Fi Mode (one tap setup)"));
+    mWifiModeButton->setTooltip(TRANS("For Wi-Fi or mobile networks: sets send format to Opus 96 kbps/ch and jitter buffer to Auto, for you and everyone already connected. With a network cable on both sides, PCM 16 bit gives the lowest latency."));
+    mWifiModeButton->addListener(this);
+
     mOptionsFormatChoiceDefaultChoice->setTooltip(TRANS("The default send quality will be used when you first connect with someone. The values specified with a kbps/ch are Opus compressed audio and use less network bandwidth at the expense of a little latency. It is not recommended to use less than 96 kpbs/ch, as that will increase latency more. The PCM 16bit (and above) use uncompressed audio data and will use the most network bandwidth, but have the least latency and CPU load. If you are connecting with a known small group who all have network service that can support it, using PCM 16 bit is recommended for the lowest latency. Otherwise 96 kbps/ch is a good default."));
 
 
@@ -366,6 +370,7 @@ OptionsView::OptionsView(SonobusAudioProcessor& proc, std::function<AudioDeviceM
     mOptionsComponent->addAndMakeVisible(mBufferTimeSlider.get());
     mOptionsComponent->addAndMakeVisible(mOptionsAutosizeDefaultChoice.get());
     mOptionsComponent->addAndMakeVisible(mOptionsFormatChoiceDefaultChoice.get());
+    mOptionsComponent->addAndMakeVisible(mWifiModeButton.get());
     mOptionsComponent->addAndMakeVisible(mOptionsFormatChoiceStaticLabel.get());
     //mOptionsComponent->addAndMakeVisible(mOptionsHearLatencyButton.get());
     mOptionsComponent->addAndMakeVisible(mOptionsUdpPortEditor.get());
@@ -723,6 +728,10 @@ void OptionsView::updateLayout()
     optionsNetbufBox.items.add(FlexItem(4, 12));
     optionsNetbufBox.items.add(FlexItem(80, minitemheight, *mOptionsAutosizeDefaultChoice).withMargin(0).withFlex(0));
 
+    optionsWifiBox.items.clear();
+    optionsWifiBox.flexDirection = FlexBox::Direction::row;
+    optionsWifiBox.items.add(FlexItem(minButtonWidth, minitemheight, *mWifiModeButton).withMargin(0).withFlex(1));
+
     optionsSendQualBox.items.clear();
     optionsSendQualBox.flexDirection = FlexBox::Direction::row;
     optionsSendQualBox.items.add(FlexItem(minButtonWidth, minitemheight, *mOptionsFormatChoiceStaticLabel).withMargin(0).withFlex(1));
@@ -820,6 +829,8 @@ void OptionsView::updateLayout()
     optionsBox.items.add(FlexItem(100, 15, *mVersionLabel).withMargin(2).withFlex(0));
     optionsBox.items.add(FlexItem(4, 4));
     //optionsBox.items.add(FlexItem(100, minitemheight, optionsLanguageBox).withMargin(2).withFlex(0)); // S82 Jam: Vietnamese only
+    optionsBox.items.add(FlexItem(4, 4));
+    optionsBox.items.add(FlexItem(100, minitemheight, optionsWifiBox).withMargin(2).withFlex(0));
     optionsBox.items.add(FlexItem(4, 4));
     optionsBox.items.add(FlexItem(100, minitemheight, optionsSendQualBox).withMargin(2).withFlex(0));
     optionsBox.items.add(FlexItem(100, minitemheight - 10, optionsChangeAllQualBox).withMargin(1).withFlex(0));
@@ -1054,6 +1065,29 @@ void OptionsView::changeUdpPort(int port)
 
 void OptionsView::buttonClicked (Button* buttonThatWasClicked)
 {
+    if (buttonThatWasClicked == mWifiModeButton.get()) {
+        // S82 Jam: Wi-Fi preset = Opus 96 kbps/ch + Auto jitter buffer, also for peers already connected
+        int opusIndex = -1;
+        for (int f = 0; f < processor.getNumberAudioCodecFormats(); ++f) {
+            SonobusAudioProcessor::AudioCodecFormatInfo finfo;
+            processor.getAudioCodeFormatInfo(f, finfo);
+            if (finfo.codec == SonobusAudioProcessor::AudioCodecFormatCodec::CodecOpus && finfo.bitrate == 96000) {
+                opusIndex = f;
+                break;
+            }
+        }
+        if (opusIndex >= 0) processor.setDefaultAudioCodecFormat(opusIndex);
+        processor.setDefaultAutoresizeBufferMode(SonobusAudioProcessor::AutoNetBufferModeAutoFull);
+        for (int p = 0; p < processor.getNumberRemotePeers(); ++p) {
+            if (opusIndex >= 0) processor.setRemotePeerAudioCodecFormat(p, opusIndex);
+            processor.setRemotePeerAutoresizeBufferMode(p, SonobusAudioProcessor::AutoNetBufferModeAutoFull);
+        }
+        updateState();
+        AlertWindow::showMessageBoxAsync(AlertWindow::InfoIcon, TRANS("Wi-Fi Mode is on"),
+                                         TRANS("Send format: Opus 96 kbps/ch. Jitter buffer: Auto. Use wired headphones, Bluetooth adds about 200 ms of latency."));
+        return;
+    }
+
     if (buttonThatWasClicked == mRecLocationButton.get()) {
         // browse folder chooser
         SafePointer<OptionsView> safeThis (this);

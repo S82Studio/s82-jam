@@ -1798,6 +1798,43 @@ void PeersContainerView::updatePeerViews(int specific)
         pvf->bufferMinButton->setEnabled(autobufmode != SonobusAudioProcessor::AutoNetBufferModeOff);
         pvf->bufferMinFrontButton->setEnabled(autobufmode != SonobusAudioProcessor::AutoNetBufferModeOff);
 
+        // S82 Jam: network quality in plain words (colour of the ping number + tooltip + warning)
+        {
+            int quality = -1;
+            if (connected && recvactive) {
+                const float jit = latinfo.jitterMs;
+                const bool recentDrops = nowstampms < pvf->lastDroppedChangedTimestampMs + 10000;
+                if (jit >= 15.0f || buftimeMs >= 60.0f) quality = 2;
+                else if (jit >= 6.0f || buftimeMs > 30.0f || recentDrops) quality = 1;
+                else quality = 0;
+            }
+
+            if (quality != pvf->netQuality) {
+                pvf->netQuality = quality;
+                pvf->pingLabel->setColour(Label::textColourId,
+                                          quality == 0 ? Colour(0xff5fd38d) :
+                                          quality == 1 ? Colour(0xffe8c547) :
+                                          quality == 2 ? Colour(0xffff6b6b) : regularTextColor);
+            }
+
+            String tip;
+            String nums = String::formatted(" (ping %d ms, jitter %d ms, buffer %d ms)", (int) lrintf(latinfo.pingMs), (int) lrintf(latinfo.jitterMs), (int) lrintf(buftimeMs));
+            if (quality == 0) tip = TRANS("Network is stable.") + nums;
+            else if (quality == 1) tip = TRANS("Network is a little unstable. Use 5 GHz Wi-Fi or a network cable if you can.") + nums;
+            else if (quality == 2) tip = TRANS("Network is very unstable, latency goes up. Check both sides: plug in a network cable, or use 5 GHz Wi-Fi close to the router.") + nums;
+            pvf->latActiveButton->setTooltip(tip);
+
+            if (quality == 2) {
+                if (pvf->poorSinceMs == 0) pvf->poorSinceMs = nowstampms;
+                if (nowstampms > pvf->poorSinceMs + 8000 && (pvf->lastNetWarnMs == 0 || nowstampms > pvf->lastNetWarnMs + 120000)) {
+                    pvf->lastNetWarnMs = nowstampms;
+                    showPopTip(TRANS("The connection with") + " " + processor.getRemotePeerUserName(i) + " " + TRANS("is unstable. Both of you should check your network: plug in a network cable, or use 5 GHz Wi-Fi close to the router."), 8000, pvf, 340);
+                }
+            } else {
+                pvf->poorSinceMs = 0;
+            }
+        }
+
 
         if (!pvf->bufferTimeSlider->isMouseButtonDown()) {
             pvf->bufferTimeSlider->setValue(buftimeMs, dontSendNotification);

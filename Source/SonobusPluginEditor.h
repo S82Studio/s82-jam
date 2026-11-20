@@ -724,6 +724,7 @@ private:
     ScopedMessageBox mScopedShareBox;
 
     bool iaaConnected = false;
+    String mLastCheckedAudioDevices; // S82 Jam: Bluetooth warning
 
     File mSettingsFolder;
     

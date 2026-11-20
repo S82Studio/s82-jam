@@ -150,6 +150,10 @@ public:
     uint32 lastDroppedChangedTimestampMs = 0;
 
     uint32 stopLatencyTestTimestampMs = 0;
+    // S82 Jam: plain-language network quality
+    int netQuality = -1; // -1 unknown, 0 good, 1 fair, 2 poor
+    uint32 poorSinceMs = 0;
+    uint32 lastNetWarnMs = 0;
     bool wasRecvActiveAtLatencyTest = false;
     bool wasSendActiveAtLatencyTest = false;
     
